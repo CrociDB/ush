@@ -19,17 +19,18 @@ returnBody :: Response -> String
 returnBody NotFound = httpStatus NotFound ++ "\r\n"
 returnBody (OK body) = httpStatus (OK body) ++ getContentHeader body ++ body
 
-resolveUrl :: String -> Response
-resolveUrl strurl =
-    case strurl of
+resolveUrl :: Request -> Response
+resolveUrl request =
+    case url request of
         "/" -> OK ""
-        _ -> case url_component of
+        _ -> case url_endpoint of
             "echo" -> OK url_value
+            "user-agent" -> OK $ userAgent request
             _ -> NotFound
   where
-    url_components = splitOn "/" strurl
-    url_component = url_components !! 1
+    url_components = splitOn "/" $ url request
+    url_endpoint = url_components !! 1
     url_value = if length url_components > 2 then url_components !! 2 else ""
 
 resolveRequest :: Request -> Response
-resolveRequest request = resolveUrl $ url request
+resolveRequest = resolveUrl 
