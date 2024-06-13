@@ -5,8 +5,9 @@ module Main (main) where
 import Control.Monad (forever)
 import qualified Data.ByteString.Char8 as BC
 import Network.Socket
-import Network.Socket.ByteString (send)
+import Network.Socket.ByteString (recv, send)
 import System.IO (BufferMode (..), hSetBuffering, stdout)
+import Request (createRequest, url)
 
 main :: IO ()
 main = do
@@ -28,8 +29,14 @@ main = do
     -- Accept connections and handle them forever
     forever $ do
         (clientSocket, clientAddr) <- accept serverSocket
+
+        message <- recv clientSocket 4096
+        BC.putStrLn message
+        let request = createRequest $ BC.unpack message
+
+        let ret = if url request == "/" then "HTTP/1.1 200 OK\r\n\r\n" else "HTTP/1.1 404 Not Found\r\n\r\n"
+
         BC.putStrLn $ "Accepted connection from " <> BC.pack (show clientAddr) <> "."
-        _ <- send clientSocket $ "HTTP/1.1 200 OK\r\n\r\n"
-  
+        _ <- send clientSocket ret
 
         close clientSocket
