@@ -6,7 +6,8 @@ import Control.Monad (forever)
 import qualified Data.ByteString.Char8 as BC
 import Network.Socket
 import Network.Socket.ByteString (recv, send)
-import Request (createRequest, url)
+import Request (createRequest)
+import Resolve
 import System.IO (BufferMode (..), hSetBuffering, stdout)
 
 main :: IO ()
@@ -34,12 +35,12 @@ main = do
         (clientSocket, clientAddr) <- accept serverSocket
 
         message <- recv clientSocket 4096
-        BC.putStrLn message
         let request = createRequest $ BC.unpack message
-
-        let ret = if url request == "/" then "HTTP/1.1 200 OK\r\n\r\n" else "HTTP/1.1 404 Not Found\r\n\r\n"
+        let response = resolveRequest request
 
         BC.putStrLn $ "Accepted connection from " <> BC.pack (show clientAddr) <> "."
-        _ <- send clientSocket ret
+        _ <- send clientSocket $ BC.pack $ returnBody response
+
+        BC.putStrLn $ BC.pack $ returnBody response
 
         close clientSocket
