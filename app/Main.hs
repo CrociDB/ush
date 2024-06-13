@@ -6,8 +6,8 @@ import Control.Monad (forever)
 import qualified Data.ByteString.Char8 as BC
 import Network.Socket
 import Network.Socket.ByteString (recv, send)
-import System.IO (BufferMode (..), hSetBuffering, stdout)
 import Request (createRequest, url)
+import System.IO (BufferMode (..), hSetBuffering, stdout)
 
 main :: IO ()
 main = do
@@ -23,6 +23,9 @@ main = do
     addrInfo <- getAddrInfo Nothing (Just host) (Just port)
 
     serverSocket <- socket (addrFamily $ head addrInfo) Stream defaultProtocol
+    setSocketOption serverSocket ReuseAddr 1
+    withFdSocket serverSocket setCloseOnExecIfNeeded
+
     bind serverSocket $ addrAddress $ head addrInfo
     listen serverSocket 5
 
