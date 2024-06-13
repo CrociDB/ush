@@ -8,20 +8,44 @@ import Network.Socket
 import Network.Socket.ByteString (recv, send)
 import Request (createRequest)
 import Resolve
+import System.Environment
 import System.IO (BufferMode (..), hSetBuffering, stdout)
 
+-- command line arguments
+data Args = Args
+    { aPort :: String
+    , aPath :: String
+    , aHost :: String
+    }
+    deriving (Show)
+
+getArgValue :: [String] -> String -> String -> String
+getArgValue args key dv = if null args then dv else current_value
+  where
+    k = head args
+    v = if length args > 1 then args !! 1 else ""
+    current_value = if k == key then v else getArgValue (tail args) key dv
+
+parseArgs :: [String] -> Args
+parseArgs args =
+    Args
+        { aPort = "4221"
+        , aPath = getArgValue args "--directory" "."
+        , aHost = "127.0.0.1"
+        }
+
+-- entrypoint
 main :: IO ()
 main = do
     hSetBuffering stdout LineBuffering
 
-    -- Uncomment this block to pass first stage
-    let host = "127.0.0.1"
-        port = "4221"
+    arglist <- getArgs
+    let args = parseArgs arglist
 
-    BC.putStrLn $ "Listening on " <> BC.pack host <> ":" <> BC.pack port
-    --
+    BC.putStrLn $ "Listening on " <> BC.pack (aHost args) <> ":" <> BC.pack (aPort args)
+
     -- Get address information for the given host and port
-    addrInfo <- getAddrInfo Nothing (Just host) (Just port)
+    addrInfo <- getAddrInfo Nothing (Just (aHost args)) (Just (aPort args))
 
     serverSocket <- socket (addrFamily $ head addrInfo) Stream defaultProtocol
     setSocketOption serverSocket ReuseAddr 1
