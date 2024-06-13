@@ -6,6 +6,7 @@ import Filesystem
 import Request
 
 import Data.List.Split
+import Data.List (intercalate)
 
 data Response = OK String | NotFound
 
@@ -22,16 +23,16 @@ returnBody (OK body) = httpStatus (OK body) ++ getContentHeader body ++ body
 
 resolveRequest :: Request -> String -> IO Response
 resolveRequest request path = do
-    filecontents <- openFileAsString path (url request)
+    let url_components = splitOn "/" $ url request
+    let url_endpoint = url_components !! 1
+    let url_value = if length url_components > 2 then url_components !! 2 else ""
 
-    case filecontents of
-        Nothing -> do
-            let url_components = splitOn "/" $ url request
-            let url_endpoint = url_components !! 1
-            let url_value = if length url_components > 2 then url_components !! 2 else ""
-
-            return $ case url_endpoint of
-                "echo" -> OK url_value
-                "user-agent" -> OK $ userAgent request
-                _ -> NotFound
-        (Just content) -> do return (OK content)
+    case url_endpoint of
+        "echo" -> do return (OK url_value)
+        "user-agent" -> do return (OK $ userAgent request)
+        "files" -> do
+            filecontents <- openFileAsString path (intercalate "/" (drop 2 url_components))
+            case filecontents of
+                Nothing -> do return NotFound
+                (Just content) -> do return (OK content)
+        _ -> do return NotFound

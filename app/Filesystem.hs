@@ -7,7 +7,7 @@ import System.FilePath ((</>))
 
 openFileAsString :: String -> String -> IO (Maybe String)
 openFileAsString path fileurl = do
-    let filepath = path </> drop 1 fileurl
+    let filepath = path </> fileurl
     putStrLn $ "Loading file: " <> filepath
 
     exists <- doesFileExist filepath
