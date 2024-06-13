@@ -8,6 +8,7 @@ import Network.Socket
 import Network.Socket.ByteString (recv, send)
 import Request (createRequest)
 import Resolve
+import System.Directory
 import System.Environment
 import System.IO (BufferMode (..), hSetBuffering, stdout)
 
@@ -41,7 +42,9 @@ main = do
 
     arglist <- getArgs
     let args = parseArgs arglist
+    path <- canonicalizePath (aPath args)
 
+    BC.putStrLn $ "Serving directory: " <> BC.pack path
     BC.putStrLn $ "Listening on " <> BC.pack (aHost args) <> ":" <> BC.pack (aPort args)
 
     -- Get address information for the given host and port
@@ -57,14 +60,15 @@ main = do
     -- Accept connections and handle them forever
     forever $ do
         (clientSocket, clientAddr) <- accept serverSocket
+        BC.putStrLn $ "Accepted connection from " <> BC.pack (show clientAddr) <> "."
 
         message <- recv clientSocket 4096
         let request = createRequest $ BC.unpack message
-        let response = resolveRequest request (aPath args)
+        response <- resolveRequest request path
 
-        BC.putStrLn $ "Accepted connection from " <> BC.pack (show clientAddr) <> "."
         _ <- send clientSocket $ BC.pack $ returnBody response
 
+        BC.putStrLn "Replying: "
         BC.putStrLn $ BC.pack $ returnBody response
 
         close clientSocket

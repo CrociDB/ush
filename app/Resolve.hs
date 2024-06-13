@@ -2,6 +2,7 @@
 
 module Resolve (Response, resolveRequest, returnBody) where
 
+import Filesystem
 import Request
 
 import Data.List.Split
@@ -19,19 +20,18 @@ returnBody :: Response -> String
 returnBody NotFound = httpStatus NotFound ++ "\r\n"
 returnBody (OK body) = httpStatus (OK body) ++ getContentHeader body ++ body
 
-resolveUrl :: String -> String -> Maybe String
-resolveUrl strurl path = Nothing
+resolveRequest :: Request -> String -> IO Response
+resolveRequest request path = do
+    filecontents <- openFileAsString path (url request)
 
-resolveRequest :: Request -> String -> Response
-resolveRequest request path =
-    case file_contents of
-        Nothing -> case url_endpoint of
-            "echo" -> OK url_value
-            "user-agent" -> OK $ userAgent request
-            _ -> NotFound
-        (Just contents) -> OK contents
-  where
-    file_contents = resolveUrl (url request) path
-    url_components = splitOn "/" $ url request
-    url_endpoint = url_components !! 1
-    url_value = if length url_components > 2 then url_components !! 2 else ""
+    case filecontents of
+        Nothing -> do
+            let url_components = splitOn "/" $ url request
+            let url_endpoint = url_components !! 1
+            let url_value = if length url_components > 2 then url_components !! 2 else ""
+
+            return $ case url_endpoint of
+                "echo" -> OK url_value
+                "user-agent" -> OK $ userAgent request
+                _ -> NotFound
+        (Just content) -> do return (OK content)
