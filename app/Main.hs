@@ -60,7 +60,7 @@ main = do
 
         message <- recv clientSocket 4096
         let request = createRequest $ BC.unpack message
-        let response = resolveRequest request
+        let response = resolveRequest request (aPath args)
 
         BC.putStrLn $ "Accepted connection from " <> BC.pack (show clientAddr) <> "."
         _ <- send clientSocket $ BC.pack $ returnBody response
