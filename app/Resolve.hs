@@ -34,6 +34,7 @@ resolveRequest request path = do
     let url_value = if length url_components > 2 then url_components !! 2 else ""
 
     case url_endpoint of
+        "" -> do return (OK "" TextPlain)
         "echo" -> do return (OK url_value TextPlain)
         "user-agent" -> do return (OK (userAgent request) TextPlain)
         "files" -> do
