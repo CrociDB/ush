@@ -4,24 +4,20 @@ module Resolve (Response, resolveRequest, returnBody) where
 
 import Filesystem
 import Request
+import ContentType
 
 import Data.List.Split
 import Data.List (intercalate)
 
-data ContentType = TextPlain | ApplicationOctetStream
 data Response = OK String ContentType | NotFound
 
 httpStatus :: Response -> String
 httpStatus NotFound = "HTTP/1.1 404 Not Found\r\n"
 httpStatus (OK _ _) = "HTTP/1.1 200 OK\r\n"
 
-contentType :: ContentType -> String
-contentType TextPlain = "text/plain"
-contentType ApplicationOctetStream = "application/octet-stream"
-
 getContentHeader :: Response -> String
 getContentHeader NotFound = ""
-getContentHeader (OK body ctype) = "Content-Type: " ++ contentType ctype ++ "\r\nContent-Length: " ++ show (length body) ++ "\r\n\r\n"
+getContentHeader (OK body ctype) = "Content-Type: " ++ contentTypeToString ctype ++ "\r\nContent-Length: " ++ show (length body) ++ "\r\n\r\n"
 
 returnBody :: Response -> String
 returnBody NotFound = httpStatus NotFound ++ "\r\n"

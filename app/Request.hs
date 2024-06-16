@@ -1,6 +1,20 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Request (Request, RequestType, createRequest, url, host, userAgent, accept) where
+module Request (
+    Request,
+    RequestType,
+    createRequest,
+    requestType,
+    url,
+    host,
+    userAgent,
+    accept,
+    contentType,
+    contentSize,
+    contentText,
+) where
+
+import ContentType
 
 import Data.List.Split
 import qualified Data.Maybe as Data
@@ -13,6 +27,9 @@ data Request = Request
     , host :: String
     , userAgent :: String
     , accept :: String
+    , contentType :: ContentType
+    , contentSize :: Integer
+    , contentText :: String
     }
     deriving (Show)
 
@@ -40,6 +57,9 @@ createRequest rstr =
         , host = rhost
         , userAgent = ruserAgent
         , accept = raccept
+        , contentType = rcontentType
+        , contentSize = rcontentSize
+        , contentText = rcontent
         }
   where
     slines = splitOn "\r\n" rstr
@@ -51,3 +71,6 @@ createRequest rstr =
     rhost = extractString $ getHeaderValue "Host" rstr
     ruserAgent = extractString $ getHeaderValue "User-Agent" rstr
     raccept = extractString $ getHeaderValue "Accept" rstr
+    rcontentSize = read (extractString $ getHeaderValue "Content-Size" rstr) :: Integer
+    rcontentType = stringToContentType $ extractString $ getHeaderValue "Content-Type" rstr
+    rcontent = ""
