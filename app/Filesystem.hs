@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Filesystem (openFileAsString, readFile) where
+module Filesystem (openFileAsString, writeStringToFile) where
 
 import System.Directory
 import System.FilePath ((</>))
@@ -16,3 +16,9 @@ openFileAsString path fileurl = do
         else do
             contents <- readFile filepath
             return (Just contents)
+
+writeStringToFile :: String -> String -> String -> IO ()
+writeStringToFile path fileurl contents = do
+    let filepath = path </> fileurl
+    putStrLn $ "Saving file: " <> filepath
+    writeFile filepath contents
