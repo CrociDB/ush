@@ -49,6 +49,12 @@ getHeaderValue key str = if null filtered then Nothing else head filtered
     values = map (getHeaderLineValue key) headerlines
     filtered = filter Data.isJust values
 
+getRequestBody :: String -> String
+getRequestBody rstr = requestBody
+  where
+    requestComponents = splitOn "\r\n\r\n" rstr
+    requestBody = if length requestComponents > 1 then requestComponents !! 1 else ""
+
 createRequest :: String -> Request
 createRequest rstr =
     Request
@@ -73,4 +79,4 @@ createRequest rstr =
     raccept = extractString $ getHeaderValue "Accept" rstr
     rcontentSize = read (extractString $ getHeaderValue "Content-Size" rstr) :: Integer
     rcontentType = stringToContentType $ extractString $ getHeaderValue "Content-Type" rstr
-    rcontent = ""
+    rcontent = getRequestBody rstr
