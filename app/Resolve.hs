@@ -3,7 +3,7 @@
 module Resolve (Response, resolveRequest, returnBody) where
 
 import Filesystem
-import Request
+import Request 
 import ContentType
 
 import Data.List.Split
@@ -25,6 +25,13 @@ returnBody (OK body ct) = httpStatus (OK body ct) ++ getContentHeader (OK body c
 
 resolveRequest :: Request -> String -> IO Response
 resolveRequest request path = do
+  if requestType request == GET
+    then resolveGETRequest request path
+    else resolvePOSTRequest request path
+
+
+resolveGETRequest :: Request -> String -> IO Response
+resolveGETRequest request path = do
     let url_components = splitOn "/" $ url request
     let url_endpoint = url_components !! 1
     let url_value = if length url_components > 2 then url_components !! 2 else ""
@@ -39,3 +46,7 @@ resolveRequest request path = do
                 Nothing -> do return NotFound
                 (Just content) -> do return (OK content ApplicationOctetStream)
         _ -> do return NotFound
+
+resolvePOSTRequest :: Request -> String -> IO Response
+resolvePOSTRequest request path = do
+  return (OK "" TextPlain)

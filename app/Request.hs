@@ -2,7 +2,7 @@
 
 module Request (
     Request,
-    RequestType,
+    RequestType (..),
     createRequest,
     requestType,
     url,
@@ -19,7 +19,7 @@ import ContentType
 import Data.List.Split
 import qualified Data.Maybe as Data
 
-data RequestType = GET | POST deriving (Show)
+data RequestType = GET | POST deriving (Show, Eq)
 
 data Request = Request
     { requestType :: RequestType
