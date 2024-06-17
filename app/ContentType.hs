@@ -1,8 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module ContentType  where
+module ContentType (ContentType (..), contentTypeToString, stringToContentType) where
 
-data ContentType = TextPlain | ApplicationOctetStream deriving (Show)
+data ContentType = TextPlain | ApplicationOctetStream
+    deriving (Show)
 
 contentTypeToString :: ContentType -> String
 contentTypeToString TextPlain = "text/plain"

@@ -1,20 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Request (
-    Request,
+    Request (..),
     RequestType (..),
     createRequest,
-    requestType,
-    url,
-    host,
-    userAgent,
-    accept,
-    contentType,
-    contentSize,
-    contentText,
 ) where
 
 import ContentType
+import Encoding
 
 import Data.List.Split
 import qualified Data.Maybe as Data
@@ -27,6 +20,7 @@ data Request = Request
     , host :: String
     , userAgent :: String
     , accept :: String
+    , acceptEncoding :: EncodingType
     , contentType :: ContentType
     , contentSize :: Integer
     , contentText :: String
@@ -63,6 +57,7 @@ createRequest rstr =
         , host = rhost
         , userAgent = ruserAgent
         , accept = raccept
+        , acceptEncoding = racceptEncoding
         , contentType = rcontentType
         , contentSize = rcontentSize
         , contentText = rcontent
@@ -77,6 +72,7 @@ createRequest rstr =
     rhost = extractString $ getHeaderValue "Host" rstr
     ruserAgent = extractString $ getHeaderValue "User-Agent" rstr
     raccept = extractString $ getHeaderValue "Accept" rstr
+    racceptEncoding = stringToEncoding $ extractString $ getHeaderValue "Accept-Encoding" rstr
     rcontentSize = read (extractString $ getHeaderValue "Content-Size" rstr) :: Integer
     rcontentType = stringToContentType $ extractString $ getHeaderValue "Content-Type" rstr
     rcontent = getRequestBody rstr
