@@ -66,9 +66,9 @@ main = do
         let request = createRequest $ BC.unpack message
         response <- resolveRequest request path
 
-        _ <- send clientSocket $ BC.pack $ returnBody response
+        _ <- send clientSocket $ returnBody response
 
         BC.putStrLn "Replying: "
-        BC.putStrLn $ BC.pack $ returnBody response
+        BC.putStrLn $ returnBody response
 
         close clientSocket

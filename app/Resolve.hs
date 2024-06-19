@@ -7,33 +7,40 @@ import Encoding
 import Filesystem
 import Request
 
+import qualified Data.ByteString.Char8 as BC
+
 import Data.List (intercalate)
 import Data.List.Split
 
-data Response = OK String ContentType EncodingType | NotFound | Created
+data Response = OK BC.ByteString ContentType EncodingType | NotFound | Created
 
-httpStatus :: Response -> String
+httpStatus :: Response -> BC.ByteString
 httpStatus NotFound = "HTTP/1.1 404 Not Found\r\n"
 httpStatus OK{} = "HTTP/1.1 200 OK\r\n"
 httpStatus Created = "HTTP/1.1 201 Created\r\n"
 
-getContentHeader :: Response -> String
+getContentHeader :: Response -> BC.ByteString
 getContentHeader NotFound = ""
 getContentHeader Created = ""
 getContentHeader (OK body ctype encoding) =
     "Content-Type: "
-        ++ contentTypeToString ctype
-        ++ encoding_line
-        ++ "\r\nContent-Length: "
-        ++ show (length body)
-        ++ "\r\n\r\n"
+        <> BC.pack (contentTypeToString ctype)
+        <> encoding_line
+        <> "\r\nContent-Length: "
+        <> BC.pack (show (BC.length body))
+        <> "\r\n\r\n"
   where
-    encoding_line = if encoding /= None then "\r\nContent-Encoding: " ++ encodingToString encoding else ""
+    encoding_line = BC.pack $ if encoding /= None then "\r\nContent-Encoding: " ++ encodingToString encoding else ""
 
-returnBody :: Response -> String
-returnBody NotFound = httpStatus NotFound ++ "\r\n"
-returnBody Created = httpStatus Created ++ "\r\n"
-returnBody (OK body ct encoding) = httpStatus (OK body ct encoding) ++ getContentHeader (OK body ct encoding) ++ body
+returnBody :: Response -> BC.ByteString
+returnBody NotFound = httpStatus NotFound <> BC.pack "\r\n"
+returnBody Created = httpStatus Created <> BC.pack "\r\n"
+returnBody (OK body ct encoding) =
+    httpStatus (OK newbody ct encoding)
+        <> getContentHeader (OK newbody ct encoding)
+        <> newbody
+  where
+    newbody = encodeString encoding body
 
 resolveRequest :: Request -> String -> IO Response
 resolveRequest request path = do
@@ -52,13 +59,13 @@ resolveGETRequest request path = do
 
     case url_endpoint of
         "" -> do return (OK "" TextPlain encoding)
-        "echo" -> do return (OK url_value TextPlain encoding)
-        "user-agent" -> do return (OK (userAgent request) TextPlain encoding)
+        "echo" -> do return (OK (BC.pack url_value) TextPlain encoding)
+        "user-agent" -> do return (OK (BC.pack (userAgent request)) TextPlain encoding)
         "files" -> do
             filecontents <- openFileAsString path (intercalate "/" (drop 2 url_components))
             case filecontents of
                 Nothing -> do return NotFound
-                (Just content) -> do return (OK content ApplicationOctetStream encoding)
+                (Just content) -> do return (OK (BC.pack content) ApplicationOctetStream encoding)
         _ -> do return NotFound
 
 resolvePOSTRequest :: Request -> String -> IO Response
