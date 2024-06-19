@@ -27,6 +27,7 @@ dependencies:
   - split
   - filepath
   - directory
+  - zlib
 
 executables:
   hs-http-server-clone-exe:
