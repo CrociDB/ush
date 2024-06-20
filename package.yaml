@@ -1,11 +1,4 @@
-# DON'T EDIT THIS!
-#
-# Codecrafters relies on this file being intact to run tests successfully. Any changes
-# here will not reflect when CodeCrafters tests your code, and might even cause build
-# failures.
-#
-# DON'T EDIT THIS!
-name: hs-http-server-clone
+name: static-http-server
 version: 0.1.0.0
 license: BSD3
 
@@ -22,15 +15,15 @@ ghc-options:
 
 dependencies:
   - base >= 4.7 && < 5
-  - network # establish a simple TCP network
-  - bytestring # useful to send bytes over the network
+  - network 
+  - bytestring 
   - split
   - filepath
   - directory
   - zlib
 
 executables:
-  hs-http-server-clone-exe:
+  static-http-server:
     main: Main.hs
     source-dirs: app
     ghc-options:

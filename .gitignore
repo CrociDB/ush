@@ -1,3 +1,4 @@
 .stack-work/
-hs-http-server-clone.cabal
+*.cabal
+*.lock
 *~
