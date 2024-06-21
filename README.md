@@ -7,6 +7,12 @@ It supports web pages, gzip compression and directory indexing.
 ## Building
 
 ```shell
-$ stack build
+$ stack install
+```
+
+## Usage
+
+```shell
+$ static-http-server --directory directory/to/serve/
 ```
 
