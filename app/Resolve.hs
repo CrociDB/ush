@@ -6,6 +6,7 @@ import ContentType
 import Encoding
 import Filesystem
 import Request
+import Logger
 
 import qualified Data.ByteString.Char8 as BC
 
@@ -54,8 +55,6 @@ resolveGETRequest request path = do
     let url_endpoint = url_components !! 1
     let url_value = if length url_components > 2 then url_components !! 2 else ""
     let encoding = acceptEncoding request
-
-    putStrLn $ show encoding
 
     case url_endpoint of
         "" -> do return (OK "" TextPlain encoding)

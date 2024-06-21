@@ -12,14 +12,15 @@ import Encoding
 import Data.List.Split
 import qualified Data.Maybe as Data
 
-data RequestType = GET | POST deriving (Show, Eq)
+data RequestType = GET | POST
+    deriving (Show, Eq)
 
 data Request = Request
     { requestType :: RequestType
     , url :: String
     , host :: String
     , userAgent :: String
-    , accept :: String
+    , headerAccept :: String
     , acceptEncoding :: EncodingType
     , contentType :: ContentType
     , contentSize :: Integer
@@ -56,7 +57,7 @@ createRequest rstr =
         , url = rurl
         , host = rhost
         , userAgent = ruserAgent
-        , accept = raccept
+        , headerAccept = raccept
         , acceptEncoding = racceptEncoding
         , contentType = rcontentType
         , contentSize = rcontentSize
@@ -72,7 +73,7 @@ createRequest rstr =
     rhost = extractString $ getHeaderValue "Host" rstr
     ruserAgent = extractString $ getHeaderValue "User-Agent" rstr
     raccept = extractString $ getHeaderValue "Accept" rstr
-    racceptEncoding = stringsToEncoding $ extractString $ getHeaderValue "Accept-Encoding" rstr
+    racceptEncoding = stringToEncoding $ extractString $ getHeaderValue "Content-Encoding" rstr
     rcontentSize = read (extractString $ getHeaderValue "Content-Size" rstr) :: Integer
     rcontentType = stringToContentType $ extractString $ getHeaderValue "Content-Type" rstr
     rcontent = getRequestBody rstr

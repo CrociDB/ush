@@ -2,12 +2,13 @@
 
 module Encoding where
 
-import Data.List.Split
-import qualified Data.ByteString.Lazy as LBS
-import qualified Data.ByteString.Char8 as BC
 import Codec.Compression.GZip (compress)
+import qualified Data.ByteString.Char8 as BC
+import qualified Data.ByteString.Lazy as LBS
+import Data.List.Split
 
-data EncodingType = None | Gzip deriving (Show, Eq)
+data EncodingType = None | Gzip
+    deriving (Show, Eq)
 
 encodingToString :: EncodingType -> String
 encodingToString None = ""
