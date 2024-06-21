@@ -57,8 +57,6 @@ resolveGETRequest request path = do
     filecontents <- openFileAsString path filepath
     mimetype <- getMimeType path filepath
 
-    print encoding
-
     case filecontents of
         Nothing -> do return NotFound
         (Just content) -> do

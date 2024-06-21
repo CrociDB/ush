@@ -3,7 +3,7 @@
 module Request (
     Request (..),
     RequestType (..),
-    createRequest,
+    createRequest
 ) where
 
 import ContentType
@@ -73,7 +73,7 @@ createRequest rstr =
     rhost = extractString $ getHeaderValue "Host" rstr
     ruserAgent = extractString $ getHeaderValue "User-Agent" rstr
     raccept = extractString $ getHeaderValue "Accept" rstr
-    racceptEncoding = stringToEncoding $ extractString $ getHeaderValue "Content-Encoding" rstr
+    racceptEncoding = stringsToEncoding $ extractString $ getHeaderValue "Accept-Encoding" rstr
     rcontentSize = read (extractString $ getHeaderValue "Content-Size" rstr) :: Integer
     rcontentType = stringToContentType $ extractString $ getHeaderValue "Content-Type" rstr
     rcontent = getRequestBody rstr
