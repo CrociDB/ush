@@ -23,6 +23,7 @@ dependencies:
   - zlib
   - cmdargs
   - time
+  - magic
 
 executables:
   static-http-server:

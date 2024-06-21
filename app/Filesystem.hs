@@ -1,24 +1,41 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Filesystem (openFileAsString, writeStringToFile) where
+module Filesystem (openFileAsString, writeStringToFile, getMimeType) where
+
+import ContentType
+import Logger
 
 import System.Directory
 import System.FilePath ((</>))
 
+import Magic
+
 openFileAsString :: String -> String -> IO (Maybe String)
 openFileAsString path fileurl = do
     let filepath = path </> fileurl
-    putStrLn $ "Loading file: " <> filepath
 
     exists <- doesFileExist filepath
     if not exists
-        then do return Nothing
+        then do 
+          logError $ "File does not exist: " ++ filepath
+          return Nothing
         else do
+            logMessage $ "Serving file: " ++ filepath
             contents <- readFile filepath
             return (Just contents)
 
 writeStringToFile :: String -> String -> String -> IO ()
 writeStringToFile path fileurl contents = do
     let filepath = path </> fileurl
-    putStrLn $ "Saving file: " <> filepath
+    logMessage $ "Saving file: " ++ filepath
     writeFile filepath contents
+
+getMimeType :: FilePath -> FilePath -> IO ContentType
+getMimeType path fileurl = do
+    let filepath = path </> fileurl
+
+    magic <- magicOpen [MagicMimeType]
+    magicLoadDefault magic
+
+    mime <- magicFile magic filepath
+    return $ stringToContentType  mime

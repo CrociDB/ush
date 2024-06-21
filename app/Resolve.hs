@@ -5,8 +5,8 @@ module Resolve (Response, resolveRequest, returnBody) where
 import ContentType
 import Encoding
 import Filesystem
-import Request
 import Logger
+import Request
 
 import qualified Data.ByteString.Char8 as BC
 
@@ -24,13 +24,13 @@ getContentHeader :: Response -> BC.ByteString
 getContentHeader NotFound = ""
 getContentHeader Created = ""
 getContentHeader (OK body ctype encoding) =
-    "Content-Type: "
-        <> BC.pack (contentTypeToString ctype)
+    content_type_line
         <> encoding_line
         <> "\r\nContent-Length: "
         <> BC.pack (show (BC.length body))
         <> "\r\n\r\n"
   where
+    content_type_line = BC.pack $ "Content-Type: " ++ contentTypeToString ctype
     encoding_line = BC.pack $ if encoding /= None then "\r\nContent-Encoding: " ++ encodingToString encoding else ""
 
 returnBody :: Response -> BC.ByteString
@@ -51,21 +51,18 @@ resolveRequest request path = do
 
 resolveGETRequest :: Request -> String -> IO Response
 resolveGETRequest request path = do
-    let url_components = splitOn "/" $ url request
-    let url_endpoint = url_components !! 1
-    let url_value = if length url_components > 2 then url_components !! 2 else ""
     let encoding = acceptEncoding request
 
-    case url_endpoint of
-        "" -> do return (OK "" TextPlain encoding)
-        "echo" -> do return (OK (BC.pack url_value) TextPlain encoding)
-        "user-agent" -> do return (OK (BC.pack (userAgent request)) TextPlain encoding)
-        "files" -> do
-            filecontents <- openFileAsString path (intercalate "/" (drop 2 url_components))
-            case filecontents of
-                Nothing -> do return NotFound
-                (Just content) -> do return (OK (BC.pack content) ApplicationOctetStream encoding)
-        _ -> do return NotFound
+    let filepath = drop 1 $ url request
+    filecontents <- openFileAsString path filepath
+    mimetype <- getMimeType path filepath
+
+    print encoding
+
+    case filecontents of
+        Nothing -> do return NotFound
+        (Just content) -> do
+            return (OK (BC.pack content) mimetype encoding)
 
 resolvePOSTRequest :: Request -> String -> IO Response
 resolvePOSTRequest request path = do

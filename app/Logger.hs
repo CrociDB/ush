@@ -17,3 +17,7 @@ logMessage msg = do
   dt <- getCurrentFormattedTime
   BC.putStrLn $ "[" <> BC.pack dt <> "] " <> BC.pack msg
 
+logError :: String -> IO ()
+logError msg = do
+  dt <- getCurrentFormattedTime
+  BC.putStrLn $ "[" <> BC.pack dt <> "][ERROR] " <> BC.pack msg
