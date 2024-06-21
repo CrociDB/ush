@@ -21,6 +21,7 @@ dependencies:
   - filepath
   - directory
   - zlib
+  - cmdargs
 
 executables:
   static-http-server:
