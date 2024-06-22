@@ -1,7 +1,5 @@
 # ush serves http
 
-![USH](images/logo.png)
-
 <p align="center">
     <img width="250" src="https://github.com/CrociDB/ush/blob/main/images/logo.png?raw=true">
 </p>
