@@ -2,6 +2,8 @@
 
 module Filesystem (openFileAsString, writeStringToFile, getMimeType) where
 
+import qualified Data.ByteString.Char8 as BC
+
 import ContentType
 import Logger
 
@@ -10,7 +12,7 @@ import System.FilePath ((</>))
 
 import Magic
 
-openFileAsString :: String -> String -> IO (Maybe String)
+openFileAsString :: String -> String -> IO (Maybe BC.ByteString)
 openFileAsString path fileurl = do
     let filepath = path </> fileurl
 
@@ -21,7 +23,7 @@ openFileAsString path fileurl = do
           return Nothing
         else do
             logMessage $ "Serving file: " ++ filepath
-            contents <- readFile filepath
+            contents <- BC.readFile filepath
             return (Just contents)
 
 writeStringToFile :: String -> String -> String -> IO ()

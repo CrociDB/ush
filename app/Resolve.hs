@@ -60,7 +60,7 @@ resolveGETRequest request path = do
     case filecontents of
         Nothing -> do return NotFound
         (Just content) -> do
-            return (OK (BC.pack content) mimetype encoding)
+            return (OK content mimetype encoding)
 
 resolvePOSTRequest :: Request -> String -> IO Response
 resolvePOSTRequest request path = do
