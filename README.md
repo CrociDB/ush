@@ -10,10 +10,10 @@ It supports static files, gzip compression and directory indexing.
 
 ## Roadmap
 
- - [x] Text/Binary file serving
+ - [x] Text/binary file serving
  - [x] gzip compression
- - [] Directory indexing
- - [] HTTP caching
+ - [ ] Directory indexing
+ - [ ] HTTP caching
 
 ## Installing from Source
 
