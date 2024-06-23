@@ -49,8 +49,7 @@ resolveGETRequest :: Request -> String -> IO Response
 resolveGETRequest request path = do
     let encoding = acceptEncoding request
 
-    let filepath = fileFullPath path (url request)
-    filedata <- resolveFile filepath
+    filedata <- resolveFile path (url request)
 
     case filedata of
         Nothing -> do return NotFound

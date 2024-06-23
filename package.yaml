@@ -24,6 +24,7 @@ dependencies:
   - cmdargs
   - time
   - magic
+  - text
 
 executables:
   ush:

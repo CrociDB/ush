@@ -12,7 +12,7 @@ It supports static files, gzip compression and directory indexing.
 
  - [x] Text/binary file serving
  - [x] gzip compression
- - [ ] Directory indexing
+ - [x] Directory indexing
  - [ ] HTTP caching
 
 ## Installing from Source

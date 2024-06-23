@@ -10,26 +10,51 @@ module Filesystem (
 
 import qualified Data.ByteString.Char8 as BC
 
+import AppData
 import ContentType
 import Logger
 
 import System.Directory
 import System.FilePath ((</>))
 
+import qualified Data.Text as T
+
 import Magic
 
 data LoadedFileData = LoadedFileData BC.ByteString ContentType
 
 fileFullPath :: String -> String -> String
-fileFullPath path fileurl = path </> drop 1 fileurl
+fileFullPath path fileurl = path </> Prelude.drop 1 fileurl
+
+applyItem :: String -> FilePath -> String
+applyItem path file =
+    T.unpack replaced
+  where
+    replaced = T.replace "%1" (T.pack (path </> file)) replacedTitle
+    replacedTitle = T.replace "%2" (T.pack file) (T.pack indexPageItem)
+
+getFilesDirectories :: String -> String -> IO String
+getFilesDirectories dirpath fileurl = do
+    names <- listDirectory dirpath
+    let fullpaths = map (applyItem fileurl) names
+    let lists = concat fullpaths
+    return lists
+
+getIndexPage :: String -> String -> IO BC.ByteString
+getIndexPage dirpath fileurl = do
+    let contents = T.replace "%1" (T.pack fileurl) $ T.replace "%3" (T.pack appHeader) (T.pack indexPage)
+    filesanddirs <- getFilesDirectories dirpath fileurl
+    let contentsWithFiles = T.unpack $ T.replace "%2" (T.pack filesanddirs) contents
+    return $ BC.pack contentsWithFiles
 
 serveFile :: FilePath -> IO BC.ByteString
 serveFile filepath = do
     logMessage $ "Serving file: " ++ filepath
     BC.readFile filepath
 
-resolveFile :: String -> IO (Maybe LoadedFileData)
-resolveFile filepath = do
+resolveFile :: String -> String -> IO (Maybe LoadedFileData)
+resolveFile path fileurl = do
+    let filepath = fileFullPath path fileurl
     dir <- doesDirectoryExist filepath
     if dir
         then do
@@ -40,8 +65,8 @@ resolveFile filepath = do
                     filecontents <- serveFile indexfilepath
                     return $ Just (LoadedFileData filecontents TextHTML)
                 else do
-                    logError $ "File does not exist: " ++ filepath
-                    return Nothing
+                    filecontents <- getIndexPage filepath fileurl
+                    return $ Just (LoadedFileData filecontents TextHTML)
         else do
             exists <- doesFileExist filepath
             if not exists
