@@ -19,8 +19,6 @@ import System.FilePath ((</>))
 
 import qualified Data.Text as T
 
-import Magic
-
 data LoadedFileData = LoadedFileData BC.ByteString ContentType
 
 fileFullPath :: String -> String -> String
@@ -66,7 +64,7 @@ resolveFile path fileurl = do
                     return $ Just (LoadedFileData filecontents TextHTML)
                 else do
                     filecontents <- getIndexPage filepath fileurl
-                    return $ Just (LoadedFileData filecontents TextHTML)
+                    return $ Just (LoadedFileData filecontents (getMimeType filepath))
         else do
             exists <- doesFileExist filepath
             if not exists
@@ -75,17 +73,12 @@ resolveFile path fileurl = do
                     return Nothing
                 else do
                     filecontents <- serveFile filepath
-                    return $ Just (LoadedFileData filecontents TextHTML)
+                    return $ Just (LoadedFileData filecontents (getMimeType filepath))
 
 writeStringToFile :: String -> String -> IO ()
 writeStringToFile filepath contents = do
     logMessage $ "Saving file: " ++ filepath
     writeFile filepath contents
 
-getMimeType :: FilePath -> IO ContentType
-getMimeType filepath = do
-    magic <- magicOpen [MagicMimeType]
-    magicLoadDefault magic
-
-    mime <- magicFile magic filepath
-    return $ stringToContentType mime
+getMimeType :: FilePath -> ContentType
+getMimeType = filenameToContentType
