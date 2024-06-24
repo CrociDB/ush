@@ -24,7 +24,7 @@ import Magic
 data LoadedFileData = LoadedFileData BC.ByteString ContentType
 
 fileFullPath :: String -> String -> String
-fileFullPath path fileurl = path </> Prelude.drop 1 fileurl
+fileFullPath path fileurl = path </> Prelude.dropWhile (== '/') fileurl
 
 applyItem :: String -> FilePath -> String
 applyItem path file =
