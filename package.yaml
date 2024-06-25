@@ -12,6 +12,7 @@ ghc-options:
   - -Wmissing-home-modules
   - -Wpartial-fields
   - -Wredundant-constraints
+  - -O2
 
 dependencies:
   - base >= 4.7 && < 5
@@ -23,7 +24,6 @@ dependencies:
   - zlib
   - cmdargs
   - time
-  - magic
   - text
 
 executables:
