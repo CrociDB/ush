@@ -64,7 +64,7 @@ resolveFile path fileurl = do
                     return $ Just (LoadedFileData filecontents TextHTML)
                 else do
                     filecontents <- getIndexPage filepath fileurl
-                    return $ Just (LoadedFileData filecontents (getMimeType filepath))
+                    return $ Just (LoadedFileData filecontents TextHTML)
         else do
             exists <- doesFileExist filepath
             if not exists
