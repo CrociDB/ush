@@ -11,15 +11,15 @@ strEmptyDefault :: String -> String -> String
 strEmptyDefault "" defo = defo
 strEmptyDefault str _ = str
 
-data ServerParams = ServerParams
+data USH = ServerParams
     { directory :: FilePath
     , port :: String
     , host :: String
     }
     deriving (Data, Typeable, Show, Eq)
 
-serverParams :: ServerParams
-serverParams =
+ush :: USH
+ush =
     ServerParams
         { directory = def &= name "d" &= typDir &= help "Directory to serve"
         , port = def &= name "p" &= help "Port"
@@ -31,6 +31,6 @@ serverParams =
 
 main :: IO ()
 main = do
-  params <- cmdArgs serverParams
+  params <- cmdArgs ush
   serve (directory params) (strEmptyDefault (host params) "localhost") (strEmptyDefault (port params) "8080")
 
